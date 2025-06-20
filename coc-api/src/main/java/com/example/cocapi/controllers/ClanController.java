@@ -15,11 +15,6 @@ public class ClanController {
 
     @GetMapping("/clan")
     public Mono<Clan> getClan(@RequestParam String tag) {
-        return clanProxy.createClan(tag);
-    }
-
-    @GetMapping("/test")
-    public String getString() {
-        return "Its working";
+        return clanProxy.createClanObject(tag);
     }
 }

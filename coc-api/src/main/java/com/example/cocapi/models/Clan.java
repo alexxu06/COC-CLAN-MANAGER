@@ -1,13 +1,36 @@
 package com.example.cocapi.models;
 
-public class Clan {
-    private final String id;
+import java.util.List;
 
-    public Clan(String id) {
-        this.id = id;
+public class Clan {
+    private String tag;
+    private String name;
+    private List<Player> memberList;
+
+    public Clan() {
     }
 
-    public String getId() {
-        return id;
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Player> getMemberList() {
+        return memberList;
+    }
+
+    public void setMemberList(List<Player> memberList) {
+        this.memberList = memberList;
     }
 }

@@ -1,25 +1,28 @@
 package com.example.cocapi.proxies;
 
 import com.example.cocapi.models.Clan;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.cocapi.models.Player;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@Component
-public class ClanProxy {
-    private final WebClient webClient;
+import java.net.URI;
+import java.net.http.HttpHeaders;
 
-    @Value("${coc-clanwar-api-url}")
-    private String url;
+@Component
+public class ClanProxy extends Proxy {
 
     public ClanProxy(WebClient webClient) {
-        this.webClient = webClient;
+        super(webClient);
     }
 
-    public Mono<Clan> createClan(String tag) {
+    public Mono<Clan> createClanObject(String tag) {
+        tag = "%23" + tag;
+        URI uri = URI.create(clanAPI + tag);
+
         return webClient.get()
-                .uri(url + "%23" + tag + "/previous?timestamp_start=0&timestamp_end=9999999999&limit=10")
+                .uri(uri)
+                .header("Authorization", "Bearer " + bearerToken)
                 .retrieve()
                 .bodyToMono(Clan.class);
     }

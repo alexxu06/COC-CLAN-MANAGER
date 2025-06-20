@@ -5,7 +5,11 @@ function App() {
   const [thing, setThing] = useState("asdas");
   
   const test = () => {
-    axios.get("/api/test")
+    axios.get("/api/clan", {
+      params: {
+        tag: "2GLY9GRG9"
+      }
+    })
     .then(function (response) {
         console.log(response)
         setThing(response.data)
@@ -18,7 +22,7 @@ function App() {
 
   return (
     <div>
-      <h1>{thing}</h1>
+      <h1>a</h1>
       <p>hi</p>
       <button onClick={test}>click</button>
     </div>

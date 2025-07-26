@@ -18,7 +18,7 @@ public class ClanProxy extends Proxy {
 
     public Mono<Clan> createClanObject(String tag) {
         tag = "%23" + tag;
-        URI uri = URI.create(clanAPI + tag);
+        URI uri = URI.create(clanAPI + "clans/" + tag);
 
         return webClient.get()
                 .uri(uri)

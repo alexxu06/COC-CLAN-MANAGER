@@ -1,5 +1,9 @@
 package com.example.cocapi.models;
 
+import com.example.cocapi.models.war.War;
+
+import java.util.List;
+
 public class Player {
     private String name;
     private String tag;
@@ -9,6 +13,7 @@ public class Player {
     private int totalPercentage;
     private int numAttacks; // number of times player has attacked
     private int totalAttacks; // total attacks player could have done
+    private List<War> wars;
 
     public Player() {
     }
@@ -41,6 +46,14 @@ public class Player {
 
     public void setClanRank(int clanRank) {
         this.clanRank = clanRank;
+    }
+
+    public List<War> getWars() {
+        return wars;
+    }
+
+    public void setWars(List<War> wars) {
+        this.wars = wars;
     }
 
     // FROM DATABASE

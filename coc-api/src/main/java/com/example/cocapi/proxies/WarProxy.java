@@ -1,28 +1,29 @@
 package com.example.cocapi.proxies;
 
-import com.example.cocapi.models.Player;
+import com.example.cocapi.models.war.War;
 import com.example.cocapi.models.war.WarResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.net.URI;
 
 @Component
-public class PlayerProxy extends Proxy {
+public class WarProxy extends Proxy {
 
-    public PlayerProxy(WebClient webClient) {
+    public WarProxy(WebClient webClient) {
         super(webClient);
     }
 
-    public Mono<Player> getPlayer(String tag) {
-        URI uri = prepUri(clanAPI, "players/{tag}", tag);
+    public Flux<War> getWars(String tag) {
+        URI uri = prepUri(warAPI, "{tag}/warhits?timestamp_start=0&timestamp_end=2527625513", tag);
 
         return webClient.get()
                 .uri(uri)
                 .header("Authorization", "Bearer " + bearerToken)
                 .retrieve()
-                .bodyToMono(Player.class);
+                .bodyToMono(WarResponse.class)
+                .flatMapMany(warResponse -> Flux.fromIterable(warResponse.getItems()));
     }
 }

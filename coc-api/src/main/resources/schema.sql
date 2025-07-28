@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS player (
     total_star INT,
     total_percentage INT,
     num_attacks INT,
-    total_attacks INT
+    total_attacks INT,
+    most_recent_war_endtime DATETIME
 );

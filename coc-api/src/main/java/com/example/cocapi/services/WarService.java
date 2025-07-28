@@ -5,22 +5,33 @@ import com.example.cocapi.models.war.Attack;
 import com.example.cocapi.models.war.War;
 import com.example.cocapi.proxies.WarProxy;
 import com.example.cocapi.repository.WarRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.sql.Array;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class WarService {
-    private final WarProxy playerWarProxy;
+    private final WarProxy warProxy;
     private final WarRepository warRepository;
+    private final DateConvertService dateConvertService;
 
-    public WarService(WarProxy playerWarProxy, WarRepository warRepository) {
-        this.playerWarProxy = playerWarProxy;
+    public WarService(WarProxy warProxy, WarRepository warRepository,
+                      DateConvertService dateConvertService) {
+        this.warProxy = warProxy;
         this.warRepository = warRepository;
+        this.dateConvertService = dateConvertService;
     }
 
     // retrieves war stats in bulk (used when searching by clan)
@@ -37,7 +48,7 @@ public class WarService {
 
         Flux<Player> missingPlayers = Flux.fromIterable(missingPlayerTags)
                 // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
-                .flatMap(tag -> playerWarProxy.getWars(tag)
+                .flatMap(tag -> warProxy.getWars(tag)
                         .collectList()
                         .publishOn(Schedulers.boundedElastic())
                         .map(wars -> calculateWarStats(tag, wars)));
@@ -51,6 +62,8 @@ public class WarService {
         int totalPercentage = 0;
         int numAttacks = 0;
         int totalAttacks = 0;
+        // get first war's endtime (most recent)
+        Timestamp mostRecentWarEndDateTime = dateConvertService.convertDate(wars);
 
         for (War war : wars) {
             numAttacks += war.getAttacks().size();
@@ -62,7 +75,8 @@ public class WarService {
             }
         }
 
-        warRepository.storePlayers(tag, totalStar, totalPercentage, numAttacks, totalAttacks);
+        warRepository.storePlayers(tag, totalStar, totalPercentage,
+                numAttacks, totalAttacks, mostRecentWarEndDateTime);
 
         Player player = new Player();
         player.setTag(tag);
@@ -72,5 +86,33 @@ public class WarService {
         player.setTotalAttacks(totalAttacks);
 
         return player;
+    }
+
+    // will update all players at midnight with any wars that ended the previous day
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void updateWars() {
+        List<Player> allPlayers = warRepository.findAll();
+
+        Flux.fromIterable(allPlayers)
+                .flatMap(player -> warProxy.getSingleWar(player.getTag())
+                        .collectList()
+                        .publishOn(Schedulers.boundedElastic())
+                        // update war stats
+                        .map(wars -> {
+                            if (!wars.isEmpty()) {
+                                War latestWar = wars.get(0);
+                                Timestamp warEndTime = dateConvertService.convertDate(Arrays.asList(latestWar));
+                                Timestamp storedWarEndTime = warRepository.getLatestWarDateTime(player.getTag());
+
+                                if (storedWarEndTime == null || warEndTime.after(storedWarEndTime)) {
+                                    calculateWarStats(player.getTag(), Arrays.asList(latestWar));
+                                }
+                            }
+
+                            return Mono.empty();
+                        }))
+                .subscribe();
+
+
     }
 }

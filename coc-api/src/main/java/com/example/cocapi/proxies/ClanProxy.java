@@ -1,14 +1,11 @@
 package com.example.cocapi.proxies;
 
 import com.example.cocapi.models.Clan;
-import com.example.cocapi.models.Player;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.net.http.HttpHeaders;
 
 @Component
 public class ClanProxy extends Proxy {

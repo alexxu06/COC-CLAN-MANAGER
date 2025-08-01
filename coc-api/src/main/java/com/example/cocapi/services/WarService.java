@@ -5,18 +5,9 @@ import com.example.cocapi.models.war.Attack;
 import com.example.cocapi.models.war.War;
 import com.example.cocapi.proxies.WarProxy;
 import com.example.cocapi.repository.WarRepository;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.sql.Array;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,29 +26,28 @@ public class WarService {
     }
 
     // retrieves war stats in bulk (used when searching by clan)
-    public Flux<Player> retrieveWarStats(List<String> playerTags) {
+    public List<Player> retrieveWarStats(List<String> playerTags) {
         List<Player> playersInDatabase = warRepository.findPlayers(playerTags);
 
-        Set<String> playersInDatabaseTags = playersInDatabase.stream()
-                .map(Player::getTag)
+        Set<String> playersInDatabaseTags = playersInDatabase
+                .stream()
+                .map(player -> player.getTag())
                 .collect(Collectors.toSet());
 
-        List<String> missingPlayerTags = playerTags.stream()
-                .filter(tag -> !playersInDatabaseTags.contains(tag))
-                .toList();
+        // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
+        for (String tag : playerTags) {
+            if (!playersInDatabaseTags.contains(tag)) {
+                Player player = calcAndStoreWarStats(tag);
+                playersInDatabase.add(player);
+            }
+        }
 
-        Flux<Player> missingPlayers = Flux.fromIterable(missingPlayerTags)
-                // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
-                .flatMap(tag -> warProxy.getWars(tag)
-                        .collectList()
-                        .publishOn(Schedulers.boundedElastic())
-                        .map(wars -> calculateWarStats(tag, wars)));
-
-        return Flux.concat(Flux.fromIterable(playersInDatabase), missingPlayers);
+        return playersInDatabase;
     }
 
     // Add up stars, percentage, num attacks and total attacks from all wars for a given player
-    private Player calculateWarStats(String tag, List<War> wars) {
+    private Player calcAndStoreWarStats(String tag) {
+        List<War> wars = warProxy.getWars(tag);
         int totalStar = 0;
         int totalPercentage = 0;
         int numAttacks = 0;
@@ -86,33 +76,5 @@ public class WarService {
         player.setTotalAttacks(totalAttacks);
 
         return player;
-    }
-
-    // will update all players at midnight with any wars that ended the previous day
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void updateWars() {
-        List<Player> allPlayers = warRepository.findAll();
-
-        Flux.fromIterable(allPlayers)
-                .flatMap(player -> warProxy.getSingleWar(player.getTag())
-                        .collectList()
-                        .publishOn(Schedulers.boundedElastic())
-                        // update war stats
-                        .map(wars -> {
-                            if (!wars.isEmpty()) {
-                                War latestWar = wars.get(0);
-                                Timestamp warEndTime = dateConvertService.convertDate(Arrays.asList(latestWar));
-                                Timestamp storedWarEndTime = warRepository.getLatestWarDateTime(player.getTag());
-
-                                if (storedWarEndTime == null || warEndTime.after(storedWarEndTime)) {
-                                    calculateWarStats(player.getTag(), Arrays.asList(latestWar));
-                                }
-                            }
-
-                            return Mono.empty();
-                        }))
-                .subscribe();
-
-
     }
 }

@@ -2,25 +2,24 @@ package com.example.cocapi.proxies;
 
 import com.example.cocapi.models.Player;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestClient;
 
 import java.net.URI;
 
 @Component
 public class PlayerProxy extends Proxy {
 
-    public PlayerProxy(WebClient webClient) {
-        super(webClient);
+    public PlayerProxy(RestClient restClient) {
+        super(restClient);
     }
 
-    public Mono<Player> getPlayer(String tag) {
+    public Player getPlayer(String tag) {
         URI uri = prepUri(clanAPI, "players/{tag}", tag);
 
-        return webClient.get()
+        return restClient.get()
                 .uri(uri)
                 .header("Authorization", "Bearer " + bearerToken)
                 .retrieve()
-                .bodyToMono(Player.class);
+                .body(Player.class);
     }
 }

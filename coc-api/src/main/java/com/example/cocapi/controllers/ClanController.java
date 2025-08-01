@@ -5,7 +5,6 @@ import com.example.cocapi.models.Player;
 import com.example.cocapi.proxies.ClanProxy;
 import com.example.cocapi.services.WarService;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -22,28 +21,32 @@ public class ClanController {
     }
 
     @GetMapping("/clan")
-    public Mono<Clan> getClan(@RequestParam String tag) {
-        return clanProxy.createClanObject(tag)
-                .flatMap(clan -> {
-                    List<String> playerTags = clan.getMemberList().stream()
-                            .map(Player::getTag)
-                            .collect(Collectors.toList());
-                    return warService.retrieveWarStats(playerTags)
-                            .collectList()
-                            .map(player -> {
-                                Map<String, Player> playerWarMap = player.stream()
-                                        .collect(Collectors.toMap(Player::getTag, p -> p));
+    public Clan getClan(@RequestParam String tag) {
+        Clan clan = clanProxy.createClanObject(tag);
+        List<Player> members = clan.getMemberList();
 
-                                for (Player currPlayer : clan.getMemberList()) {
-                                    Player stats = playerWarMap.get(currPlayer.getTag());
-                                    currPlayer.setTotalAttacks(stats.getTotalAttacks());
-                                    currPlayer.setTotalPercentage(stats.getTotalPercentage());
-                                    currPlayer.setTotalStars(stats.getTotalStars());
-                                    currPlayer.setNumAttacks(stats.getNumAttacks());
-                                }
+        List<String> playerTags = members
+                .stream()
+                .map(player -> player.getTag())
+                .toList();
 
-                                return clan;
-                            });
-                });
+        // Difficult to combine war stats with players within warService due to WarRepository RowMapper
+        // which returns new set of players with only wars stats (no name, donations, etc.)
+        // so I'm doing it here
+        List<Player> playersWithWarStats = warService.retrieveWarStats(playerTags);
+
+        Map<String, Player> playerTagMap = playersWithWarStats
+                .stream()
+                .collect(Collectors.toMap(player -> player.getTag(), player -> player));
+
+        for (Player player : members) {
+            Player stats = playerTagMap.get(player.getTag());
+            player.setTotalAttacks(stats.getTotalAttacks());
+            player.setTotalPercentage(stats.getTotalPercentage());
+            player.setTotalStars(stats.getTotalStars());
+            player.setNumAttacks(stats.getNumAttacks());
+        }
+
+        return clan;
     }
 }

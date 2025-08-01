@@ -3,37 +3,37 @@ package com.example.cocapi.proxies;
 import com.example.cocapi.models.war.War;
 import com.example.cocapi.models.war.WarResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import org.springframework.web.client.RestClient;
 
 import java.net.URI;
+import java.util.List;
 
 @Component
 public class WarProxy extends Proxy {
 
-    public WarProxy(WebClient webClient) {
-        super(webClient);
+    public WarProxy(RestClient restClient) {
+        super(restClient);
     }
 
-    public Flux<War> getWars(String tag) {
+    public List<War> getWars(String tag) {
         URI uri = prepUri(warAPI, "{tag}/warhits?timestamp_start=0&timestamp_end=2527625513", tag);
 
-        return webClient.get()
+        return restClient.get()
                 .uri(uri)
                 .header("Authorization", "Bearer " + bearerToken)
                 .retrieve()
-                .bodyToMono(WarResponse.class)
-                .flatMapMany(warResponse -> Flux.fromIterable(warResponse.getItems()));
+                .body(WarResponse.class)
+                .getItems();
     }
 
-    public Flux<War> getSingleWar(String tag) {
+    public List<War> getSingleWar(String tag) {
         URI uri = prepUri(warAPI, "{tag}/warhits?timestamp_start=0&timestamp_end=2527625513&limit=1", tag);
 
-        return webClient.get()
+        return restClient.get()
                 .uri(uri)
                 .header("Authorization", "Bearer " + bearerToken)
                 .retrieve()
-                .bodyToMono(WarResponse.class)
-                .flatMapMany(warResponse -> Flux.fromIterable(warResponse.getItems()));
+                .body(WarResponse.class)
+                .getItems();
     }
 }

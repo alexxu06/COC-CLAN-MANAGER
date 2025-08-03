@@ -5,9 +5,12 @@ import com.example.cocapi.models.war.War;
 import com.example.cocapi.proxies.PlayerProxy;
 import com.example.cocapi.proxies.WarProxy;
 import com.example.cocapi.services.WarService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,9 +28,9 @@ public class PlayerController {
     }
 
     @GetMapping("/player")
-    public Player getPlayer(@RequestParam String tag) {
+    public ResponseEntity<?> getPlayer(@RequestParam String tag) {
         Player player = playerProxy.getPlayer(tag);
-        Player stats = warService.retrieveWarStats(Arrays.asList(tag)).get(0);
+        Player stats = warService.retrieveWarStats(tag);
 
         player.setTotalAttacks(stats.getTotalAttacks());
         player.setTotalPercentage(stats.getTotalPercentage());
@@ -35,6 +38,8 @@ public class PlayerController {
         player.setNumAttacks(stats.getNumAttacks());
         player.setWars(warProxy.getWars(tag));
 
-        return player;
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(player);
     }
 }

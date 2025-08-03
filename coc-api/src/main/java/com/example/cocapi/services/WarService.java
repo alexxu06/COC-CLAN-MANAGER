@@ -8,6 +8,7 @@ import com.example.cocapi.repository.WarRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +28,12 @@ public class WarService {
         this.warProxy = warProxy;
         this.warRepository = warRepository;
         this.dateConvertService = dateConvertService;
+    }
+
+    // retrieves war stats for a single player
+    public Player retrieveWarStats(String playerTag) {
+        List<Player> playerStats = retrieveWarStats(Arrays.asList(playerTag));
+        return playerStats.getFirst();
     }
 
     // retrieves war stats in bulk (used when searching by clan)

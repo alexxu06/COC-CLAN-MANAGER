@@ -4,6 +4,8 @@ import com.example.cocapi.models.Clan;
 import com.example.cocapi.models.Player;
 import com.example.cocapi.proxies.ClanProxy;
 import com.example.cocapi.services.WarService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +23,16 @@ public class ClanController {
     }
 
     @GetMapping("/clan")
-    public Clan getClan(@RequestParam String tag) {
+    public ResponseEntity<Clan> getClan(@RequestParam String tag) {
         Clan clan = clanProxy.createClanObject(tag);
         List<Player> members = clan.getMemberList();
+
+        // no members in the clan
+        if (members.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.ACCEPTED)
+                    .body(clan);
+        }
 
         List<String> playerTags = members
                 .stream()
@@ -47,6 +56,8 @@ public class ClanController {
             player.setNumAttacks(stats.getNumAttacks());
         }
 
-        return clan;
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(clan);
     }
 }

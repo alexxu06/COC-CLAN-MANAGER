@@ -25,11 +25,11 @@ public abstract class Proxy {
     }
 
     // Adds a # in front of the tag if there isn't one
-    protected String prepTag(String tag) {
+    public String prepTag(String tag) {
         return tag.startsWith("#") ? tag : "#" + tag;
     }
 
-    protected URI prepUri(String url, String path, String tag) {
+    public URI prepUri(String url, String path, String tag) {
         tag = prepTag(tag);
 
         return UriComponentsBuilder.fromUriString(url + path)

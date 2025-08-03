@@ -1,13 +1,11 @@
 package com.example.cocapi.repository;
 
 import com.example.cocapi.models.Player;
-import com.example.cocapi.models.war.War;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 

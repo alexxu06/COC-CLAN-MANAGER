@@ -27,7 +27,7 @@ public class ClanController {
 
         List<String> playerTags = members
                 .stream()
-                .map(player -> player.getTag())
+                .map(Player::getTag)
                 .toList();
 
         // Difficult to combine war stats with players within warService due to WarRepository RowMapper
@@ -37,7 +37,7 @@ public class ClanController {
 
         Map<String, Player> playerTagMap = playersWithWarStats
                 .stream()
-                .collect(Collectors.toMap(player -> player.getTag(), player -> player));
+                .collect(Collectors.toMap(Player::getTag, player -> player));
 
         for (Player player : members) {
             Player stats = playerTagMap.get(player.getTag());

@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,15 +35,24 @@ public class WarService {
 
         Set<String> playersInDatabaseTags = playersInDatabase
                 .stream()
-                .map(player -> player.getTag())
+                .map(Player::getTag)
                 .collect(Collectors.toSet());
 
         // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
-        for (String tag : playerTags) {
-            if (!playersInDatabaseTags.contains(tag)) {
-                Player player = calcAndStoreWarStats(tag);
+        // Use concurrent virtual threading to speed up process
+        try (ExecutorService service = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<Player>> playerThreads = playerTags.stream()
+                    .filter(tag -> !playersInDatabaseTags.contains(tag))
+                    .map(tag ->
+                            service.submit(() -> calcAndStoreWarStats(tag)))
+                    .toList();
+
+            for (Future<Player> playerThread : playerThreads) {
+                Player player = playerThread.get();
                 playersInDatabase.add(player);
             }
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         return playersInDatabase;

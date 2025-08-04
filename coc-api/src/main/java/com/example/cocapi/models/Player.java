@@ -2,6 +2,7 @@ package com.example.cocapi.models;
 
 import com.example.cocapi.models.war.War;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class Player {
@@ -13,6 +14,7 @@ public class Player {
     private int totalPercentage;
     private int numAttacks; // number of times player has attacked
     private int totalAttacks; // total attacks player could have done
+    private Timestamp warEndTime; // most recent war endTime
     private List<War> wars;
 
     public Player() {
@@ -87,5 +89,13 @@ public class Player {
 
     public void setTotalAttacks(int totalAttacks) {
         this.totalAttacks = totalAttacks;
+    }
+
+    public Timestamp getWarEndTime() {
+        return warEndTime;
+    }
+
+    public void setWarEndTime(Timestamp warEndTime) {
+        this.warEndTime = warEndTime;
     }
 }

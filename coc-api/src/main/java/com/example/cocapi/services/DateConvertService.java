@@ -12,12 +12,12 @@ import java.util.List;
 public class DateConvertService {
 
     // gets most recent war and converts into suitable Timestamp for storing
-    public Timestamp convertDate(List<War> wars) {
+    public Timestamp getMostRecentWarEndTime(List<War> wars) {
         if (wars.isEmpty()) {
             return null;
         }
 
-        String endTime = wars.get(0).getWar_data().getEndTime();
+        String endTime = wars.getFirst().getWar_data().getEndTime();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss.SSSX");
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(endTime, formatter);
         return Timestamp.from(zonedDateTime.toInstant());

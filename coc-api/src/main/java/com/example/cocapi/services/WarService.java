@@ -8,6 +8,7 @@ import com.example.cocapi.repository.WarRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,7 @@ public class WarService {
 
     // retrieves war stats in bulk (used when searching by clan)
     public List<Player> retrieveWarStats(List<String> playerTags) {
+        // This will only return playerTags of players who are stored in the database
         List<Player> playersInDatabase = warRepository.findPlayers(playerTags);
 
         Set<String> playersInDatabaseTags = playersInDatabase
@@ -45,48 +47,90 @@ public class WarService {
                 .map(Player::getTag)
                 .collect(Collectors.toSet());
 
-        // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
-        // Use concurrent virtual threading to speed up process
+        updateStoredPlayers(playersInDatabase);
+
+        InsertNewPlayers(playerTags, playersInDatabaseTags);
+
+        // return new and updated players
+        return warRepository.findPlayers(playerTags);
+    }
+
+    // Retrieve database stats and combine with new (as opposed to requesting entire war history)
+    // smaller api requests better performance
+    private void updateStoredPlayers(List<Player> playersInDatabase) {
+        try (ExecutorService service = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<Player>> playerThreads = playersInDatabase.stream()
+                    .map(player -> service.submit(() -> updateWarStats(player)))
+                    .toList();
+
+            List<Player> updatedPlayers = new ArrayList<>();
+
+            for (Future<Player> playerThread : playerThreads) {
+                Player updatedPlayer = playerThread.get();
+                if (updatedPlayer != null) {
+                    updatedPlayers.add(updatedPlayer);
+                }
+            }
+
+            warRepository.updateWars(updatedPlayers);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
+    // Use concurrent virtual threading to speed up process
+    private void InsertNewPlayers(List<String> playerTags, Set<String> playersInDatabaseTags) {
         try (ExecutorService service = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Future<Player>> playerThreads = playerTags.stream()
                     .filter(tag -> !playersInDatabaseTags.contains(tag))
                     .map(tag ->
-                            service.submit(() -> calcAndStoreWarStats(tag)))
+                            service.submit(() -> calculateWarStats(tag, warProxy.getWars(tag))))
                     .toList();
 
+            List<Player> newPlayers = new ArrayList<>();
+
             for (Future<Player> playerThread : playerThreads) {
-                Player player = playerThread.get();
-                playersInDatabase.add(player);
+                newPlayers.add(playerThread.get());
             }
+
+            warRepository.storePlayers(newPlayers);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
 
-        return playersInDatabase;
+    private Player updateWarStats(Player player) {
+        List<War> recentWars = warProxy.getRecentWars(player);
+
+        if (!recentWars.isEmpty()) {
+            return calculateWarStats(player.getTag(), recentWars);
+        }
+
+        // if no new wars
+        return null;
     }
 
     // Add up stars, percentage, num attacks and total attacks from all wars for a given player
-    private Player calcAndStoreWarStats(String tag) {
-        List<War> wars = warProxy.getWars(tag);
+    private Player calculateWarStats(String tag, List<War> wars) {
         int totalStar = 0;
         int totalPercentage = 0;
         int numAttacks = 0;
         int totalAttacks = 0;
         // get first war's endtime (most recent)
-        Timestamp mostRecentWarEndDateTime = dateConvertService.convertDate(wars);
+        Timestamp mostRecentWarEndDateTime = dateConvertService.getMostRecentWarEndTime(wars);
 
         for (War war : wars) {
-            numAttacks += war.getAttacks().size();
+            List<Attack> attacks = war.getAttacks();
+            numAttacks += attacks.size();
             // random are normal wars (2 attacks). Otherwise, cwl (1 attack)
             totalAttacks += (war.getWar_data().getType().equals("random")) ? 2 : 1;
-            for (Attack attack : war.getAttacks()) {
+            for (Attack attack : attacks) {
                 totalStar += attack.getStars();
                 totalPercentage += attack.getDestructionPercentage();
             }
         }
-
-        warRepository.storePlayers(tag, totalStar, totalPercentage,
-                numAttacks, totalAttacks, mostRecentWarEndDateTime);
 
         Player player = new Player();
         player.setTag(tag);
@@ -94,7 +138,7 @@ public class WarService {
         player.setTotalPercentage(totalPercentage);
         player.setNumAttacks(numAttacks);
         player.setTotalAttacks(totalAttacks);
-
+        player.setWarEndTime(mostRecentWarEndDateTime);
         return player;
     }
 }

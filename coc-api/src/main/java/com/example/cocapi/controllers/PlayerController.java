@@ -36,6 +36,7 @@ public class PlayerController {
         player.setTotalPercentage(stats.getTotalPercentage());
         player.setTotalStars(stats.getTotalStars());
         player.setNumAttacks(stats.getNumAttacks());
+        player.setWarEndTime(stats.getWarEndTime());
         player.setWars(warProxy.getWars(tag));
 
         return ResponseEntity

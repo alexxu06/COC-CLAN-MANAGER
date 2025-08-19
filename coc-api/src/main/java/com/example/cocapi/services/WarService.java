@@ -31,14 +31,13 @@ public class WarService {
         this.dateConvertService = dateConvertService;
     }
 
-    // retrieves war stats for a single player
-    public Player retrieveWarStats(String playerTag) {
-        List<Player> playerStats = retrieveWarStats(Arrays.asList(playerTag));
-        return playerStats.getFirst();
-    }
-
     // retrieves war stats in bulk (used when searching by clan)
-    public List<Player> retrieveWarStats(List<String> playerTags) {
+    public List<Player> retrieveWarStats(List<Player> players) {
+        List<String> playerTags = players
+                .stream()
+                .map(Player::getTag)
+                .toList();
+
         // This will only return playerTags of players who are stored in the database
         List<Player> playersInDatabase = warRepository.findPlayers(playerTags);
 
@@ -49,10 +48,16 @@ public class WarService {
 
         updateStoredPlayers(playersInDatabase);
 
-        InsertNewPlayers(playerTags, playersInDatabaseTags);
+        InsertNewPlayers(players, playersInDatabaseTags);
 
         // return new and updated players
         return warRepository.findPlayers(playerTags);
+    }
+
+    // retrieves war stats for a single player
+    public Player retrieveWarStats(Player player) {
+        List<Player> playerStats = retrieveWarStats(Arrays.asList(player));
+        return playerStats.getFirst();
     }
 
     // Retrieve database stats and combine with new (as opposed to requesting entire war history)
@@ -81,13 +86,19 @@ public class WarService {
 
     // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
     // Use concurrent virtual threading to speed up process
-    private void InsertNewPlayers(List<String> playerTags, Set<String> playersInDatabaseTags) {
+    private void InsertNewPlayers(List<Player> players, Set<String> playersInDatabaseTags) {
         try (ExecutorService service = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<Future<Player>> playerThreads = playerTags.stream()
-                    .filter(tag -> !playersInDatabaseTags.contains(tag))
-                    .map(tag ->
-                            service.submit(() -> calculateWarStats(tag, warProxy.getWars(tag))))
-                    .toList();
+
+            List<Future<Player>> playerThreads = new ArrayList<>();
+
+            for (Player player : players) {
+                String playerTag = player.getTag();
+                if (!playersInDatabaseTags.contains(playerTag)) {
+                    Future<Player> future = service.submit(() -> calculateWarStats(player, warProxy.getWars(playerTag)));
+                    playerThreads.add(future);
+                }
+
+            }
 
             List<Player> newPlayers = new ArrayList<>();
 
@@ -105,7 +116,7 @@ public class WarService {
         List<War> recentWars = warProxy.getRecentWars(player);
 
         if (!recentWars.isEmpty()) {
-            return calculateWarStats(player.getTag(), recentWars);
+            return calculateWarStats(player, recentWars);
         }
 
         // if no new wars
@@ -113,7 +124,7 @@ public class WarService {
     }
 
     // Add up stars, percentage, num attacks and total attacks from all wars for a given player
-    private Player calculateWarStats(String tag, List<War> wars) {
+    private Player calculateWarStats(Player player, List<War> wars) {
         int totalStar = 0;
         int totalPercentage = 0;
         int numAttacks = 0;
@@ -132,8 +143,6 @@ public class WarService {
             }
         }
 
-        Player player = new Player();
-        player.setTag(tag);
         player.setTotalStars(totalStar);
         player.setTotalPercentage(totalPercentage);
         player.setNumAttacks(numAttacks);

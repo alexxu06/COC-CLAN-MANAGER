@@ -30,7 +30,7 @@ public class PlayerController {
     @GetMapping("/player")
     public ResponseEntity<?> getPlayer(@RequestParam String tag) {
         Player player = playerProxy.getPlayer(tag);
-        Player stats = warService.retrieveWarStats(tag);
+        Player stats = warService.retrieveWarStats(player);
 
         player.setTotalAttacks(stats.getTotalAttacks());
         player.setTotalPercentage(stats.getTotalPercentage());

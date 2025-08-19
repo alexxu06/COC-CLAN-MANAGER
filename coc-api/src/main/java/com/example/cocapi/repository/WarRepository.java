@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +23,9 @@ public class WarRepository {
         playerRowMapper = (r, i) -> {
             Player player = new Player();
             player.setTag(r.getString("player_tag"));
+            player.setName(r.getString("player_name"));
+            player.setDonations(r.getInt("player_donations"));
+            player.setClanRank(r.getInt("clan_rank"));
             player.setTotalStars(r.getInt("total_star"));
             player.setTotalPercentage(r.getInt("total_percentage"));
             player.setNumAttacks(r.getInt("num_attacks"));
@@ -35,19 +37,25 @@ public class WarRepository {
 
     public void storePlayers(List<Player> players) {
         String sql = "INSERT INTO player " +
-                    "(player_tag, total_star, total_percentage, num_attacks, total_attacks, most_recent_war_endtime) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+                    "(player_tag, player_name, player_donations, " +
+                    "clan_rank, total_star, total_percentage, num_attacks, " +
+                    "total_attacks, most_recent_war_endtime, clan_tag) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbc.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 Player player = players.get(i);
                 ps.setString(1, player.getTag());
-                ps.setInt(2, player.getTotalStars());
-                ps.setInt(3, player.getTotalPercentage());
-                ps.setInt(4, player.getNumAttacks());
-                ps.setInt(5, player.getTotalAttacks());
-                ps.setTimestamp(6, player.getWarEndTime());
+                ps.setString(2, player.getName());
+                ps.setInt(3, player.getDonations());
+                ps.setInt(4, player.getClanRank());
+                ps.setInt(5, player.getTotalStars());
+                ps.setInt(6, player.getTotalPercentage());
+                ps.setInt(7, player.getNumAttacks());
+                ps.setInt(8, player.getTotalAttacks());
+                ps.setTimestamp(9, player.getWarEndTime());
+                ps.setString(10, player.getClanTag());
             }
 
             @Override
@@ -102,6 +110,16 @@ public class WarRepository {
                 sql,
                 playerRowMapper,
                 playerTags.toArray());
+    }
+
+    // find all players in a clan
+    public List<Player> findPlayersByClan(String clanTag) {
+        String sql = "SELECT * FROM player WHERE clan_tag = ?";
+
+        return jdbc.query(
+                sql,
+                playerRowMapper,
+                clanTag);
     }
 
     // get all players from database

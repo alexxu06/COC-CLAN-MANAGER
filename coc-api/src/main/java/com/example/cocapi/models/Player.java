@@ -16,6 +16,8 @@ public class Player {
     private int totalAttacks; // total attacks player could have done
     private Timestamp warEndTime; // most recent war endTime
     private List<War> wars;
+    private String clanTag;
+    private PlayerClan clan;
 
     public Player() {
     }
@@ -97,5 +99,25 @@ public class Player {
 
     public void setWarEndTime(Timestamp warEndTime) {
         this.warEndTime = warEndTime;
+    }
+
+    public String getClanTag() {
+        if (clanTag != null) {
+            return clanTag;
+        } else {
+            return clan.getTag();
+        }
+    }
+
+    public void setClanTag(String clanTag) {
+        this.clanTag = clanTag;
+    }
+
+    public PlayerClan getClan() {
+        return clan;
+    }
+
+    public void setClan(PlayerClan clan) {
+        this.clan = clan;
     }
 }

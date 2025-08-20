@@ -4,6 +4,7 @@ import com.example.cocapi.models.war.War;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 
 public class Player {
     private String name;
@@ -119,5 +120,17 @@ public class Player {
 
     public void setClan(PlayerClan clan) {
         this.clan = clan;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(tag, player.tag);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(tag);
     }
 }

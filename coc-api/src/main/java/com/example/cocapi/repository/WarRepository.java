@@ -101,10 +101,7 @@ public class WarRepository {
 
     // find all players from playerTags
     public List<Player> findPlayers(List<String> playerTags) {
-        String placeholders = playerTags.stream()
-                .map(tag -> "?")
-                .collect(Collectors.joining(","));
-        String sql = "SELECT * FROM player WHERE player_tag IN (" + placeholders + ")";
+        String sql = "SELECT * FROM player WHERE player_tag IN (" + sqlPlaceholder(playerTags) + ")";
 
         return jdbc.query(
                 sql,
@@ -122,12 +119,16 @@ public class WarRepository {
                 clanTag);
     }
 
-    // get all players from database
-    public List<Player> findAll() {
-        String sql = "SELECT * FROM player";
-        return jdbc.query(
-                sql,
-                playerRowMapper);
+    public void removePlayersFromCLan(List<String> playerTags) {
+        String sql = "UPDATE player SET clan_tag = NULL WHERE player_tag IN (" + sqlPlaceholder(playerTags) + ")";
+
+        jdbc.update(sql, playerTags.toArray());
     }
 
+    // Update multiple rows with 1 query, more efficient than batching
+    public String sqlPlaceholder(List<String> playerTags) {
+        return playerTags.stream()
+                .map(tag -> "?")
+                .collect(Collectors.joining(","));
+    }
 }

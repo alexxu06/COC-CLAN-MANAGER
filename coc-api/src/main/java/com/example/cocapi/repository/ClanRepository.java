@@ -2,6 +2,7 @@ package com.example.cocapi.repository;
 
 import com.example.cocapi.models.Clan;
 import com.example.cocapi.models.Player;
+import org.springframework.cglib.core.Local;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -36,7 +37,7 @@ public class ClanRepository {
         String tag = clan.getTag();
         String name = clan.getName();
 
-        jdbc.update(sql, tag, name, Timestamp.valueOf(LocalDateTime.now(ZoneOffset.UTC)));
+        jdbc.update(sql, tag, name, Timestamp.from(Instant.now()));
     }
 
     public Clan findClan(String tag) {

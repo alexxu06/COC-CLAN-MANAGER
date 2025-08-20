@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,7 +46,8 @@ public class ClanService {
         // if accessed in last 24 hours, retrieve from database, otherwise update
         // 24 hours because wars are around 1-2 days
         if (hasEnoughTimePassed(24, clan)) {
-            clan.setMemberList(updateMembers(members));
+            List<Player> updatedMembers = removePlayersNotInClan(members, clanTag);
+            clan.setMemberList(updateMembers(updatedMembers));
             clanRepository.updateTime(clan.getTag());
         } else {
             clan.setMemberList(members);
@@ -62,7 +64,7 @@ public class ClanService {
         Instant lastChecked = clan.getLastChecked().toInstant();
         Instant now = Instant.now();
         Duration duration = Duration.between(lastChecked, now);
-        System.out.println(duration.toHours());
+
         return duration.toHours() >= hours;
     }
 
@@ -72,9 +74,26 @@ public class ClanService {
             return members;
         }
 
-        List<Player> updatedMembers = warService.retrieveWarStats(members);
+        return warService.retrieveWarStats(members);
+    }
 
-        return updatedMembers;
+    // if any players have left the clan, update database accordingly
+    public List<Player> removePlayersNotInClan(List<Player> members, String clanTag) {
+        Clan updatedClan = clanProxy.createClanObject(clanTag);
+        List<Player> currentPlayers = updatedClan.getMemberList();
+        List<String> notInClan = new ArrayList<>();
+        for (Player member : members) {
+            if (!currentPlayers.contains(member)) {
+                notInClan.add(member.getTag());
+            }
+        }
+
+        if (!notInClan.isEmpty()) {
+            warRepository.removePlayersFromCLan(notInClan);
+        }
+
+
+        return currentPlayers;
     }
 
 }

@@ -125,6 +125,14 @@ public class WarRepository {
         jdbc.update(sql, playerTags.toArray());
     }
 
+    public void updateClanTag(List<String> playerTags, String clanTag) {
+        String placeHolder = sqlPlaceholder(playerTags);
+        playerTags.addFirst("#" + clanTag);
+        String sql = "UPDATE player SET clan_tag = ? WHERE player_tag IN (" + placeHolder + ")";
+
+        jdbc.update(sql, playerTags.toArray());
+    }
+
     // Update multiple rows with 1 query, more efficient than batching
     public String sqlPlaceholder(List<String> playerTags) {
         return playerTags.stream()

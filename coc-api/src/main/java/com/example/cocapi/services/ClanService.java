@@ -7,6 +7,7 @@ import com.example.cocapi.repository.ClanRepository;
 import com.example.cocapi.repository.WarRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -29,6 +30,7 @@ public class ClanService {
         this.warRepository = warRepository;
     }
 
+    @Transactional
     public Clan getClan(String clanTag) {
         Clan clan;
         List<Player> members = List.of();
@@ -80,11 +82,21 @@ public class ClanService {
     // if any players have left the clan, update database accordingly
     public List<Player> removePlayersNotInClan(List<Player> members, String clanTag) {
         Clan updatedClan = clanProxy.createClanObject(clanTag);
-        List<Player> currentPlayers = updatedClan.getMemberList();
+        List<Player> currentMembers = updatedClan.getMemberList();
         List<String> notInClan = new ArrayList<>();
+        List<String> switchedClan = new ArrayList<>();
+
+        // remove players who have left the clan by setting clan_tag to null
         for (Player member : members) {
-            if (!currentPlayers.contains(member)) {
+            if (!currentMembers.contains(member)) {
                 notInClan.add(member.getTag());
+            }
+        }
+
+        // if player was in another clan previously, switch clan_tag
+        for (Player currentMember: currentMembers) {
+            if (!members.contains(currentMember)) {
+                switchedClan.add(currentMember.getTag());
             }
         }
 
@@ -92,8 +104,12 @@ public class ClanService {
             warRepository.removePlayersFromCLan(notInClan);
         }
 
+        if (!switchedClan.isEmpty()) {
+            warRepository.updateClanTag(switchedClan, clanTag);
+        }
 
-        return currentPlayers;
+
+        return currentMembers;
     }
 
 }

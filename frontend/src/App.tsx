@@ -1,14 +1,23 @@
-import SearchBar from "./components/searchbar/SearchBar";
+import SearchBar from "./components/SearchBar";
+import ClanInfo from "./components/ClanInfo";
+import MemberList from "./components/MemberList";
+import { Container, Row, Col } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ClanInfo from "./components/claninfo/ClanInfo";
 
 function App() {
 
   return (
-    <div>
-      <SearchBar />
-      <ClanInfo />
-    </div>
+    <Container>
+      <Row>
+        <Col>
+            <SearchBar />
+            <ClanInfo />
+        </Col>
+        <Col>
+          <MemberList />
+        </Col>
+      </Row>
+    </Container>
   )
 }
 

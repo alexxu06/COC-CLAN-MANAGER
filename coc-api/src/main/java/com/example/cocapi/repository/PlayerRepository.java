@@ -13,19 +13,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class WarRepository {
+public class PlayerRepository {
     private final JdbcTemplate jdbc;
     private final RowMapper<Player> playerRowMapper;
 
-    public WarRepository(JdbcTemplate jdbc) {
+    public PlayerRepository(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
 
         playerRowMapper = (r, i) -> {
             Player player = new Player();
             player.setTag(r.getString("player_tag"));
-            player.setName(r.getString("player_name"));
-            player.setDonations(r.getInt("player_donations"));
-            player.setClanRank(r.getInt("clan_rank"));
             player.setTotalStars(r.getInt("total_star"));
             player.setTotalPercentage(r.getInt("total_percentage"));
             player.setNumAttacks(r.getInt("num_attacks"));
@@ -37,25 +34,21 @@ public class WarRepository {
 
     public void storePlayers(List<Player> players) {
         String sql = "INSERT INTO player " +
-                    "(player_tag, player_name, player_donations, " +
-                    "clan_rank, total_star, total_percentage, num_attacks, " +
+                    "(player_tag, total_star, total_percentage, num_attacks, " +
                     "total_attacks, most_recent_war_endtime, clan_tag) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         jdbc.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 Player player = players.get(i);
                 ps.setString(1, player.getTag());
-                ps.setString(2, player.getName());
-                ps.setInt(3, player.getDonations());
-                ps.setInt(4, player.getClanRank());
-                ps.setInt(5, player.getTotalStars());
-                ps.setInt(6, player.getTotalPercentage());
-                ps.setInt(7, player.getNumAttacks());
-                ps.setInt(8, player.getTotalAttacks());
-                ps.setTimestamp(9, player.getWarEndTime());
-                ps.setString(10, player.getClanTag());
+                ps.setInt(2, player.getTotalStars());
+                ps.setInt(3, player.getTotalPercentage());
+                ps.setInt(4, player.getNumAttacks());
+                ps.setInt(5, player.getTotalAttacks());
+                ps.setTimestamp(6, player.getWarEndTime());
+                ps.setString(7, player.getClanTag());
             }
 
             @Override

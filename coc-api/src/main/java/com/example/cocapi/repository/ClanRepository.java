@@ -2,24 +2,21 @@ package com.example.cocapi.repository;
 
 import com.example.cocapi.models.Clan;
 import com.example.cocapi.models.Player;
-import org.springframework.cglib.core.Local;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Repository
 public class ClanRepository {
     private final JdbcTemplate jdbc;
     private final RowMapper<Clan> clanRowMapper;
-    private final WarRepository warRepository;
+    private final PlayerRepository playerRepository;
 
-    public ClanRepository(JdbcTemplate jdbc, WarRepository warRepository) {
+    public ClanRepository(JdbcTemplate jdbc, PlayerRepository playerRepository) {
         this.jdbc = jdbc;
 
         clanRowMapper = (r, i) -> {
@@ -29,7 +26,7 @@ public class ClanRepository {
             clan.setLastChecked(r.getTimestamp("last_checked"));
             return clan;
         };
-        this.warRepository = warRepository;
+        this.playerRepository = playerRepository;
     }
 
     public void storeClan(Clan clan) {
@@ -44,7 +41,7 @@ public class ClanRepository {
         String sql = "SELECT * FROM clan WHERE clan_tag=?";
 
         Clan clan = jdbc.queryForObject(sql, clanRowMapper, "#"+tag);
-        List<Player> members = warRepository.findPlayersByClan(tag);
+        List<Player> members = playerRepository.findPlayersByClan(tag);
         clan.setMemberList(members);
 
         return clan;

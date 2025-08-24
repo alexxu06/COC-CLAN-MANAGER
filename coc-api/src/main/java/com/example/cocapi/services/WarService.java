@@ -4,7 +4,7 @@ import com.example.cocapi.models.Player;
 import com.example.cocapi.models.war.Attack;
 import com.example.cocapi.models.war.War;
 import com.example.cocapi.proxies.WarProxy;
-import com.example.cocapi.repository.WarRepository;
+import com.example.cocapi.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 @Service
 public class WarService {
     private final WarProxy warProxy;
-    private final WarRepository warRepository;
+    private final PlayerRepository playerRepository;
     private final DateConvertService dateConvertService;
 
-    public WarService(WarProxy warProxy, WarRepository warRepository,
+    public WarService(WarProxy warProxy, PlayerRepository playerRepository,
                       DateConvertService dateConvertService) {
         this.warProxy = warProxy;
-        this.warRepository = warRepository;
+        this.playerRepository = playerRepository;
         this.dateConvertService = dateConvertService;
     }
 
@@ -39,19 +39,28 @@ public class WarService {
                 .toList();
 
         // This will only return playerTags of players who are stored in the database
-        List<Player> playersInDatabase = warRepository.findPlayers(playerTags);
+        List<Player> playersInDatabase = playerRepository.findPlayers(playerTags);
 
         Set<String> playersInDatabaseTags = playersInDatabase
                 .stream()
                 .map(Player::getTag)
                 .collect(Collectors.toSet());
 
+        // Filter only players in database so it can update the existing player
+        // instead of creating new (which would be using playerInDatabase)
+//        List<Player> filteredExistingPlayers = players
+//                .stream()
+//                .filter(playersInDatabase::contains)
+//                .toList();
+//
+//        updateStoredPlayers(filteredExistingPlayers);
+
         updateStoredPlayers(playersInDatabase);
 
         InsertNewPlayers(players, playersInDatabaseTags);
 
         // return new and updated players
-        return warRepository.findPlayers(playerTags);
+        return playerRepository.findPlayers(playerTags);
     }
 
     // retrieves war stats for a single player
@@ -77,7 +86,7 @@ public class WarService {
                 }
             }
 
-            warRepository.updateWars(updatedPlayers);
+            playerRepository.updateWars(updatedPlayers);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -106,7 +115,7 @@ public class WarService {
                 newPlayers.add(playerThread.get());
             }
 
-            warRepository.storePlayers(newPlayers);
+            playerRepository.storePlayers(newPlayers);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -6,6 +6,9 @@ import java.util.List;
 public class Clan {
     private String tag;
     private String name;
+    private String description;
+    private ClanImg badgeUrls;
+    private String clanImg;
     private Timestamp lastChecked;
     private List<Player> memberList;
 
@@ -26,6 +29,31 @@ public class Clan {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public ClanImg getBadgeUrls() {
+        return badgeUrls;
+    }
+
+    public void setBadgeUrls(ClanImg badgeUrls) {
+        this.badgeUrls = badgeUrls;
+        setClanImg(badgeUrls.getLarge());
+    }
+
+    public void setClanImg(String clanImg) {
+        this.clanImg = clanImg;
+    }
+
+    public String getClanImg() {
+        return clanImg;
     }
 
     public Timestamp getLastChecked() {

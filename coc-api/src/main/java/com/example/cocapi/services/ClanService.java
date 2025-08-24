@@ -4,7 +4,7 @@ import com.example.cocapi.models.Clan;
 import com.example.cocapi.models.Player;
 import com.example.cocapi.proxies.ClanProxy;
 import com.example.cocapi.repository.ClanRepository;
-import com.example.cocapi.repository.WarRepository;
+import com.example.cocapi.repository.PlayerRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,41 +21,55 @@ public class ClanService {
     private final ClanRepository clanRepository;
     private final ClanProxy clanProxy;
     private final WarService warService;
-    private final WarRepository warRepository;
+    private final PlayerRepository playerRepository;
 
-    public ClanService(ClanRepository clanRepository, ClanProxy clanProxy, WarService warService, WarRepository warRepository) {
+    public ClanService(ClanRepository clanRepository, ClanProxy clanProxy, WarService warService, PlayerRepository playerRepository) {
         this.clanRepository = clanRepository;
         this.clanProxy = clanProxy;
         this.warService = warService;
-        this.warRepository = warRepository;
+        this.playerRepository = playerRepository;
     }
 
     @Transactional
     public Clan getClan(String clanTag) {
-        Clan clan;
-        List<Player> members = List.of();
+        Clan clan = clanProxy.createClanObject(clanTag);
+        List<Player> members = clan.getMemberList();
 
         // fetch clan from database, if empty then add to database
         try {
-            clan = clanRepository.findClan(clanTag);
-            members = warRepository.findPlayersByClan(clan.getTag());
+            clan.setLastChecked(clanRepository.findClan(clanTag).getLastChecked());
         } catch (EmptyResultDataAccessException e) {
-            clan = clanProxy.createClanObject(clanTag);
             clanRepository.storeClan(clan);
-            members = clan.getMemberList();
         }
+
+        removePlayersNotInClan(clan);
 
         // if accessed in last 24 hours, retrieve from database, otherwise update
         // 24 hours because wars are around 1-2 days
         if (hasEnoughTimePassed(24, clan)) {
-            List<Player> updatedMembers = removePlayersNotInClan(members, clanTag);
-            clan.setMemberList(updateMembers(updatedMembers));
-            clanRepository.updateTime(clan.getTag());
+            updateMembers(members);
+            clanRepository.updateTime(clanTag);
         } else {
-            clan.setMemberList(members);
+            AddWarStats(members, clanTag);
         }
 
         return clan;
+    }
+
+    public void AddWarStats(List<Player> members, String clanTag) {
+        List<Player> warStats = playerRepository.findPlayersByClan("#" + clanTag);
+        Map<String, Player> warStatsMap = warStats
+                .stream()
+                .collect(Collectors.toMap(Player::getTag, player -> player));
+
+        for (Player player : members) {
+            Player stats = warStatsMap.get(player.getTag());
+            player.setTotalAttacks(stats.getTotalAttacks());
+            player.setTotalPercentage(stats.getTotalPercentage());
+            player.setTotalStars(stats.getTotalStars());
+            player.setNumAttacks(stats.getNumAttacks());
+            player.setWarEndTime(stats.getWarEndTime());
+        }
     }
 
     public Boolean hasEnoughTimePassed(int hours, Clan clan) {
@@ -70,19 +84,19 @@ public class ClanService {
         return duration.toHours() >= hours;
     }
 
-    public List<Player> updateMembers(List<Player> members) {
+    public void updateMembers(List<Player> members) {
         // no members in the clan
         if (members.isEmpty()) {
-            return members;
+            return;
         }
 
-        return warService.retrieveWarStats(members);
+        warService.retrieveWarStats(members);
     }
 
     // if any players have left the clan, update database accordingly
-    public List<Player> removePlayersNotInClan(List<Player> members, String clanTag) {
-        Clan updatedClan = clanProxy.createClanObject(clanTag);
-        List<Player> currentMembers = updatedClan.getMemberList();
+    public void removePlayersNotInClan(Clan clan) {
+        List<Player> members = clan.getMemberList();
+        List<Player> currentMembers = playerRepository.findPlayersByClan(clan.getTag());;
         List<String> notInClan = new ArrayList<>();
         List<String> switchedClan = new ArrayList<>();
 
@@ -101,15 +115,12 @@ public class ClanService {
         }
 
         if (!notInClan.isEmpty()) {
-            warRepository.removePlayersFromCLan(notInClan);
+            playerRepository.removePlayersFromCLan(notInClan);
         }
 
         if (!switchedClan.isEmpty()) {
-            warRepository.updateClanTag(switchedClan, clanTag);
+            playerRepository.updateClanTag(switchedClan, clan.getTag());
         }
-
-
-        return currentMembers;
     }
 
 }

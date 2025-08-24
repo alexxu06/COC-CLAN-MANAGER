@@ -9,7 +9,10 @@ import java.util.Objects;
 public class Player {
     private String name;
     private String tag;
+    private String role;
+    private int townHallLevel;
     private int donations;
+    private int trophies;
     private int clanRank;
     private int totalStars;
     private int totalPercentage;
@@ -37,12 +40,36 @@ public class Player {
         this.tag = tag;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public int getTownHallLevel() {
+        return townHallLevel;
+    }
+
+    public void setTownHallLevel(int townHallLevel) {
+        this.townHallLevel = townHallLevel;
+    }
+
     public int getDonations() {
         return donations;
     }
 
     public void setDonations(int donations) {
         this.donations = donations;
+    }
+
+    public int getTrophies() {
+        return trophies;
+    }
+
+    public void setTrophies(int trophies) {
+        this.trophies = trophies;
     }
 
     public int getClanRank() {

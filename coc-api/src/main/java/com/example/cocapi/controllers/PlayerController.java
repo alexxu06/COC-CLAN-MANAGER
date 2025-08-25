@@ -4,6 +4,7 @@ import com.example.cocapi.models.Player;
 import com.example.cocapi.models.war.War;
 import com.example.cocapi.proxies.PlayerProxy;
 import com.example.cocapi.proxies.WarProxy;
+import com.example.cocapi.services.TagService;
 import com.example.cocapi.services.WarService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,27 +21,20 @@ public class PlayerController {
     private final WarService warService;
     private final PlayerProxy playerProxy;
     private final WarProxy warProxy;
+    private final TagService tagService;
 
-    public PlayerController(WarService warService, PlayerProxy playerProxy, WarProxy warProxy) {
+    public PlayerController(WarService warService, PlayerProxy playerProxy, WarProxy warProxy, TagService tagService) {
         this.warService = warService;
         this.playerProxy = playerProxy;
         this.warProxy = warProxy;
+        this.tagService = tagService;
     }
 
-    @GetMapping("/player")
-    public ResponseEntity<?> getPlayer(@RequestParam String tag) {
-        Player player = playerProxy.getPlayer(tag);
-        Player stats = warService.retrieveWarStats(player);
-
-        player.setTotalAttacks(stats.getTotalAttacks());
-        player.setTotalPercentage(stats.getTotalPercentage());
-        player.setTotalStars(stats.getTotalStars());
-        player.setNumAttacks(stats.getNumAttacks());
-        player.setWarEndTime(stats.getWarEndTime());
-        player.setWars(warProxy.getWars(tag));
+    @GetMapping("/player-wars")
+    public ResponseEntity<?> getPlayerWars(@RequestParam String tag) {
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(player);
+                .body(warProxy.getWars(tagService.prepTag(tag)));
     }
 }

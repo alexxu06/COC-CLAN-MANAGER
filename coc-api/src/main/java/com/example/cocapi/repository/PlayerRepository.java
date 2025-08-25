@@ -120,7 +120,7 @@ public class PlayerRepository {
 
     public void updateClanTag(List<String> playerTags, String clanTag) {
         String placeHolder = sqlPlaceholder(playerTags);
-        playerTags.addFirst("#" + clanTag);
+        playerTags.addFirst(clanTag);
         String sql = "UPDATE player SET clan_tag = ? WHERE player_tag IN (" + placeHolder + ")";
 
         jdbc.update(sql, playerTags.toArray());

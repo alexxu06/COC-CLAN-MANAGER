@@ -43,7 +43,6 @@ public class ClanService {
         }
 
         removePlayersNotInClan(clan);
-
         // if accessed in last 24 hours, retrieve from database, otherwise update
         // 24 hours because wars are around 1-2 days
         if (hasEnoughTimePassed(24, clan)) {
@@ -57,7 +56,7 @@ public class ClanService {
     }
 
     public void AddWarStats(List<Player> members, String clanTag) {
-        List<Player> warStats = playerRepository.findPlayersByClan("#" + clanTag);
+        List<Player> warStats = playerRepository.findPlayersByClan(clanTag);
         Map<String, Player> warStatsMap = warStats
                 .stream()
                 .collect(Collectors.toMap(Player::getTag, player -> player));

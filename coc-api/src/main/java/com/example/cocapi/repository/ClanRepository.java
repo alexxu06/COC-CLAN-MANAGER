@@ -40,7 +40,7 @@ public class ClanRepository {
     public Clan findClan(String tag) {
         String sql = "SELECT * FROM clan WHERE clan_tag=?";
 
-        Clan clan = jdbc.queryForObject(sql, clanRowMapper, "#"+tag);
+        Clan clan = jdbc.queryForObject(sql, clanRowMapper, tag);
         List<Player> members = playerRepository.findPlayersByClan(tag);
         clan.setMemberList(members);
 

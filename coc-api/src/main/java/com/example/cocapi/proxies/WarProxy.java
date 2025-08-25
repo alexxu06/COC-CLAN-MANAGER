@@ -3,6 +3,7 @@ package com.example.cocapi.proxies;
 import com.example.cocapi.models.Player;
 import com.example.cocapi.models.war.War;
 import com.example.cocapi.models.war.WarResponse;
+import com.example.cocapi.services.TagService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -14,8 +15,8 @@ import java.util.List;
 @Component
 public class WarProxy extends Proxy {
 
-    public WarProxy(RestClient restClient) {
-        super(restClient);
+    public WarProxy(RestClient restClient, TagService tagService) {
+        super(restClient, tagService);
     }
 
     // get ALL wars

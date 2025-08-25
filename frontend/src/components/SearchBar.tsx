@@ -6,16 +6,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 type SearchBarProps = {
     setClan: React.Dispatch<React.SetStateAction<Clan | null>>;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function SearchBar({ setClan }: SearchBarProps) {
+export default function SearchBar({ setClan, setLoading }: SearchBarProps) {
     const [clanTag, setClanTag] = useState<String>("");
 
     const fetchClanInfo = (event: React.FormEvent) => {
         event.preventDefault();
+        setLoading(true);
         axios.get("/api/clan", { params: { tag: clanTag } })
             .then((response) => {
                 setClan(response.data);
+                setLoading(false);
             })
             .catch((error) => {
                 if (error.response.status == 404) {
@@ -24,7 +27,7 @@ export default function SearchBar({ setClan }: SearchBarProps) {
                     alert("System Error");
                 }
                 console.log(error);
-
+                setLoading(false);
             });
     }
 

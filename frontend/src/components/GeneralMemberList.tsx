@@ -14,7 +14,7 @@ export default function GeneralMemberList({ memberList }: MemberListProp) {
       className="align-items-center border-bottom py-2"
       onClick={() => console.log('Row clicked!')} >
       <Col xs="auto" className='d-none d-sm-block'>
-        <Image src="./public/th17.png"
+        <Image src={`/th${member.townHallLevel}.png`}
           fluid
           style={{ maxHeight: '50px', width: 'auto' }} />
       </Col>

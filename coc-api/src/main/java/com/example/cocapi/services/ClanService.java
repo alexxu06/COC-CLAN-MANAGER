@@ -43,7 +43,9 @@ public class ClanService {
             clanRepository.storeClan(clan);
         }
 
-        syncMembersWithDatabase(clan);
+        if (members.size() > 0) {
+            syncMembersWithDatabase(clan);
+        }
 
         // if accessed in last 24 hours, retrieve from database, otherwise update
         // 24 hours because wars are around 1-2 days

@@ -77,3 +77,8 @@ export interface BadgeUrls2 {
   large: string
   medium: string
 }
+
+export type OutletContextType = {
+  memberList: Member[];
+  clanTag: string;
+};

@@ -1,13 +1,12 @@
 import { Container, Row, Col, Image } from 'react-bootstrap';
-import { type Member } from "../types/index.ts";
+import { useOutletContext } from 'react-router-dom';
+import type { Member, OutletContextType } from "../types/index.ts";
 import '../index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-type MemberListProp = {
-    memberList: Member[];
-}
 
-export default function GeneralMemberList({ memberList }: MemberListProp) {
+export default function GeneralMemberList() {
+    const { memberList } = useOutletContext<OutletContextType>();
 
     const displayGeneral = memberList.map(member =>
         <Row key={member.tag}

@@ -1,38 +1,19 @@
-import axios from "axios";
-import { type Clan } from "../types"
 import { useState } from "react";
 import { Form, Button, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-type SearchBarProps = {
-    setClan: React.Dispatch<React.SetStateAction<Clan | null>>;
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export default function SearchBar({ setClan, setLoading }: SearchBarProps) {
+export default function SearchBar() {
     const [clanTag, setClanTag] = useState<String>("");
+    const navigate = useNavigate();
 
-    const fetchClanInfo = (event: React.FormEvent): void => {
+    const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        setLoading(true);
-        axios.get("/api/clan", { params: { tag: clanTag } })
-            .then((response) => {
-                setClan(response.data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                if (error.response.status == 404) {
-                    alert("Clan Not Found");
-                } else {
-                    alert("System Error");
-                }
-                console.log(error);
-                setLoading(false);
-            });
+        navigate(`/${clanTag}/general`);
     }
 
     return (
-        <Form onSubmit={fetchClanInfo} >
+        <Form onSubmit={handleSubmit} >
             <Form.Group controlId="clanTag">
                 <Row className="align-items-center gx-2" >
                     <Col xs="auto">

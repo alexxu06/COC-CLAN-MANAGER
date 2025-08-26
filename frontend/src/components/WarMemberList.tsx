@@ -1,17 +1,16 @@
 import axios from "axios";
+import { useOutletContext } from 'react-router-dom';
 import { Container, Row, Col, Image, Modal, Card } from 'react-bootstrap';
-import type { Member, War, CurrentClan } from "../types/index.ts";
+import type { Member, War, CurrentClan, OutletContextType } from "../types/index.ts";
 import { DateTime } from 'luxon';
 import { useState } from "react";
 import '../index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-type MemberListProp = {
-  memberList: Member[];
-  clanTag: string;
-}
 
-export default function WarMemberList({ memberList, clanTag }: MemberListProp) {
+export default function WarMemberList() {
+  const { memberList, clanTag } = useOutletContext<OutletContextType>();
+
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [warHistory, setWarHistory] = useState<War[] | null>(null);
 

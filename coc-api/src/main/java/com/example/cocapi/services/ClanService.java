@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +43,8 @@ public class ClanService {
             clanRepository.storeClan(clan);
         }
 
-        removePlayersNotInClan(clan);
+        syncMembersWithDatabase(clan);
+
         // if accessed in last 24 hours, retrieve from database, otherwise update
         // 24 hours because wars are around 1-2 days
         if (hasEnoughTimePassed(24, clan)) {
@@ -92,10 +94,11 @@ public class ClanService {
         warService.retrieveWarStats(members);
     }
 
-    // if any players have left the clan, update database accordingly
-    public void removePlayersNotInClan(Clan clan) {
-        List<Player> members = clan.getMemberList();
-        List<Player> currentMembers = playerRepository.findPlayersByClan(clan.getTag());;
+    // if any players have left the clan or joined the clan, update database accordingly
+    public void syncMembersWithDatabase(Clan clan) {
+        addPlayerToClan(clan);
+        List<Player> currentMembers = clan.getMemberList();
+        List<Player> members = playerRepository.findPlayersByClan(clan.getTag());;
         List<String> notInClan = new ArrayList<>();
         List<String> switchedClan = new ArrayList<>();
 
@@ -120,6 +123,24 @@ public class ClanService {
         if (!switchedClan.isEmpty()) {
             playerRepository.updateClanTag(switchedClan, clan.getTag());
         }
+    }
+
+    // if a new player has joined the clan who is not in database
+    public void addPlayerToClan(Clan clan) {
+        List<Player> currentMembers = clan.getMemberList();
+
+        List<String> currentMemberTags = currentMembers
+                .stream()
+                .map(Player::getTag)
+                .toList();
+
+        List<Player> playersInDatabase = playerRepository.findPlayerInDatabase(currentMemberTags);
+        Set<String> playersInDatabaseTags = playersInDatabase
+                .stream()
+                .map(Player::getTag)
+                .collect(Collectors.toSet());
+
+        warService.insertNewPlayers(currentMembers, playersInDatabaseTags);
     }
 
 }

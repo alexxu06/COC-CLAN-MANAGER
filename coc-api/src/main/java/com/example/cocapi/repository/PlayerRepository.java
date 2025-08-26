@@ -112,6 +112,15 @@ public class PlayerRepository {
                 clanTag);
     }
 
+    // return only players from given players that are in database
+    public List<Player> findPlayerInDatabase(List<String> playerTags) {
+        String placeHolder = sqlPlaceholder(playerTags);
+        String sql = "SELECT * FROM player " +
+                    "WHERE player_tag IN (" + placeHolder + ")";
+
+        return jdbc.query(sql, playerRowMapper, playerTags.toArray());
+    }
+
     public void removePlayersFromCLan(List<String> playerTags) {
         String sql = "UPDATE player SET clan_tag = NULL WHERE player_tag IN (" + sqlPlaceholder(playerTags) + ")";
 

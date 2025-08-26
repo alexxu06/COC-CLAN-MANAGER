@@ -57,7 +57,7 @@ public class WarService {
 
         updateStoredPlayers(playersInDatabase);
 
-        InsertNewPlayers(players, playersInDatabaseTags);
+        insertNewPlayers(players, playersInDatabaseTags);
 
         // return new and updated players
         return playerRepository.findPlayers(playerTags);
@@ -95,7 +95,7 @@ public class WarService {
 
     // Unfortunately COC API only allows 1 player info per API request aka cannot batch ;(
     // Use concurrent virtual threading to speed up process
-    private void InsertNewPlayers(List<Player> players, Set<String> playersInDatabaseTags) {
+    public void insertNewPlayers(List<Player> players, Set<String> playersInDatabaseTags) {
         try (ExecutorService service = Executors.newVirtualThreadPerTaskExecutor()) {
 
             List<Future<Player>> playerThreads = new ArrayList<>();

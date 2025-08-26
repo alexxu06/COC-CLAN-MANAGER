@@ -30,7 +30,7 @@ function App() {
                 </div>): (
               <Routes>
             <Route path = "/general" element = { <GeneralMemberList memberList = {clan?.memberList ?? []} />} />
-            <Route path="/war" element={<WarMemberList memberList={clan?.memberList ?? []} />} />
+            <Route path="/war" element={<WarMemberList memberList={clan?.memberList ?? []} clanTag={clan?.tag ?? ""} />} />
           </Routes>
         )}
         </Container>

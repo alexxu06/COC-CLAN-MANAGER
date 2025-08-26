@@ -12,7 +12,7 @@ type SearchBarProps = {
 export default function SearchBar({ setClan, setLoading }: SearchBarProps) {
     const [clanTag, setClanTag] = useState<String>("");
 
-    const fetchClanInfo = (event: React.FormEvent) => {
+    const fetchClanInfo = (event: React.FormEvent): void => {
         event.preventDefault();
         setLoading(true);
         axios.get("/api/clan", { params: { tag: clanTag } })
@@ -32,7 +32,6 @@ export default function SearchBar({ setClan, setLoading }: SearchBarProps) {
     }
 
     return (
-
         <Form onSubmit={fetchClanInfo} >
             <Form.Group controlId="clanTag">
                 <Row className="align-items-center gx-2" >

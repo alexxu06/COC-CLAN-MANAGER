@@ -42,7 +42,7 @@ export default function WarMemberList() {
       });
   }
 
-  // sometimes it clan and opp are swapped due to how external api stores wars
+  // sometimes clan and opp are swapped due to how external api stores wars
   const getCorrectClan = (clan: CurrentClan, opp: CurrentClan): CurrentClan => {
     return clan.tag == clanTag ? clan : opp;
   }
@@ -105,7 +105,7 @@ export default function WarMemberList() {
 
                     if (attack) {
                       return (
-                        <Row key={index} className="d-flex justify-content-sm-center align-items-center gap-2" >
+                        <Row key={index} className="d-flex justify-content-center align-items-center gap-2" >
                           <Col xs="auto" className="d-flex align-items-center">
                             <p className="m-0 p-0"><b>Attack {index + 1}:</b></p>
                           </Col>

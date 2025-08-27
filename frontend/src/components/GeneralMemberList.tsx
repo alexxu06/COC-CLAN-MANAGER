@@ -1,6 +1,6 @@
 import { Container, Row, Col, Image } from 'react-bootstrap';
 import { useOutletContext } from 'react-router-dom';
-import type { Member, OutletContextType } from "../types/index.ts";
+import type { OutletContextType } from "../types/index.ts";
 import '../index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 

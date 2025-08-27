@@ -18,7 +18,7 @@ export default function NavBar() {
         </Nav.Item>
         <Nav.Item>
           <Nav.Link eventKey="disabled" disabled>
-            Clan Capital
+            Clan Capital (coming soon)
           </Nav.Link>
         </Nav.Item>
       </Nav>

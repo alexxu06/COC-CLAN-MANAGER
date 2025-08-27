@@ -22,6 +22,7 @@ export interface Member {
 
 export interface War {
   attacks: Attack[]
+  member_data: MemberData
   war_data: WarData
 }
 
@@ -37,6 +38,13 @@ export interface Defender {
   townhallLevel: string
   mapPosition: string
   opponentAttacks: string
+}
+
+export interface MemberData {
+  mapPosition: number
+  name: string
+  tag: string
+  townhallLevel: number
 }
 
 export interface WarData {

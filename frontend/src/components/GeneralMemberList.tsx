@@ -17,7 +17,7 @@ export default function GeneralMemberList() {
                     fluid
                     style={{ maxHeight: '50px', width: 'auto' }} />
             </Col>
-            <Col xs={3}><strong>{member.name}</strong></Col>
+            <Col xs={3} style={{overflow: "hidden",overflowWrap: 'break-word'}}><b>{member.name}</b></Col>
             <Col xs={7}>
                 <Row>
                     <Col xs={3} className='text-center'>
@@ -49,9 +49,12 @@ export default function GeneralMemberList() {
                 <Col xs={3}>Name</Col>
                 <Col xs={7}>
                     <Row>
-                        <Col xs={3} className='text-center'>Rank</Col>
+                        <Col xs={3} className='d-flex align-items-center text-center'>Rank</Col>
                         <Col xs={3} className='text-center'>Role</Col>
-                        <Col xs={3} className='text-center'>Donations</Col>
+                        <Col xs={3} className='text-center'>
+                            <span className="d-none d-sm-inline">Donations</span>
+                            <span className="d-inline d-sm-none">Don</span>
+                        </Col>
                         <Col xs={3} className='text-center'>Trophies</Col>
                     </Row>
                 </Col>

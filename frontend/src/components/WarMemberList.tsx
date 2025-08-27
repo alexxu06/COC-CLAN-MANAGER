@@ -190,7 +190,7 @@ export default function WarMemberList() {
           fluid
           style={{ maxHeight: '50px', width: 'auto' }} />
       </Col>
-      <Col xs={3}><strong>{member.name}</strong></Col>
+      <Col xs={3} style={{overflow: "hidden",overflowWrap: 'break-word'}}><b>{member.name}</b></Col>
       <Col xs={2} className='text-center'>
         {calculateAverage(member.totalStars, member.numAttacks) / 100}
       </Col>

@@ -41,11 +41,11 @@ export default function ClanPage() {
     return (
         <Container className="mt-5">
             <Row>
-                <Col md={5}>
+                <Col lg={5} xs={12}>
                     <SearchBar />
                     <ClanInfo clan={clan} />
                 </Col>
-                <Col md={7}>
+                <Col lg={7}  xs={12}>
                     <Container className="mt-sm-0 mt-4">
                         <NavBar />
                         {isLoading ? (

@@ -43,7 +43,7 @@ public class ClanService {
             clanRepository.storeClan(clan);
         }
 
-        if (members.size() > 0) {
+        if (!members.isEmpty()) {
             syncMembersWithDatabase(clan);
         }
 

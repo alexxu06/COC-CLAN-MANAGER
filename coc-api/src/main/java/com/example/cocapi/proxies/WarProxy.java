@@ -20,8 +20,8 @@ public class WarProxy extends Proxy {
     }
 
     // get ALL wars
-    public List<War> getWars(String tag) {
-        URI uri = prepUri(warAPI, "{tag}/warhits?timestamp_start=0&timestamp_end=2527625513", tag);
+    public List<War> getWars(String tag, int limit) {
+        URI uri = prepUri(warAPI, "{tag}/warhits?timestamp_start=0&timestamp_end=2527625513&limit={limit}", tag, limit);
 
         return restClient.get()
                 .uri(uri)

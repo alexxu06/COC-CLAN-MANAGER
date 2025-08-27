@@ -35,6 +35,14 @@ public abstract class Proxy {
                 .build(tag);
     }
 
+    public URI prepUri(String url, String path, String tag, int limit) {
+        tag = tagService.prepTag(tag);
+
+        return UriComponentsBuilder.fromUriString(url + path)
+                .buildAndExpand(tag, limit)
+                .toUri();
+    }
+
     // if a war endtime is provided
     public URI prepUri(String url, String path, String tag, Timestamp endTime) {
         tag = tagService.prepTag(tag);

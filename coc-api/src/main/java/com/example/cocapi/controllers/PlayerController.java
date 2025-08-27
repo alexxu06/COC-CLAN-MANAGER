@@ -11,30 +11,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.Arrays;
-import java.util.List;
 
 @RestController
 public class PlayerController {
-    private final WarService warService;
-    private final PlayerProxy playerProxy;
     private final WarProxy warProxy;
     private final TagService tagService;
 
-    public PlayerController(WarService warService, PlayerProxy playerProxy, WarProxy warProxy, TagService tagService) {
-        this.warService = warService;
-        this.playerProxy = playerProxy;
+    public PlayerController(WarProxy warProxy, TagService tagService) {
         this.warProxy = warProxy;
         this.tagService = tagService;
     }
 
     @GetMapping("/player-wars")
-    public ResponseEntity<?> getPlayerWars(@RequestParam String tag) {
+    public ResponseEntity<?> getPlayerWars(@RequestParam String tag,
+                                           @RequestParam(required = false, defaultValue = "20") int limit) {
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(warProxy.getWars(tagService.prepTag(tag)));
+                .body(warProxy.getWars(tagService.prepTag(tag), limit));
     }
 }

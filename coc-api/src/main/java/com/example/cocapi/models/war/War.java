@@ -7,6 +7,8 @@ import java.util.List;
 public class War {
     @JsonProperty("war_data")
     private WarData warData;
+    @JsonProperty("member_data")
+    private MemberData memberData;
     private List<Attack> attacks;
 
     public War() {
@@ -19,6 +21,14 @@ public class War {
 
     public List<Attack> getAttacks() {
         return attacks;
+    }
+
+    public MemberData getMemberData() {
+        return memberData;
+    }
+
+    public void setMemberData(MemberData memberData) {
+        this.memberData = memberData;
     }
 
     public void setAttacks(List<Attack> attacks) {

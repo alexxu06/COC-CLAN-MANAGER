@@ -103,7 +103,7 @@ public class WarService {
             for (Player player : players) {
                 String playerTag = player.getTag();
                 if (!playersInDatabaseTags.contains(playerTag)) {
-                    Future<Player> future = service.submit(() -> calculateWarStats(player, warProxy.getWars(playerTag)));
+                    Future<Player> future = service.submit(() -> calculateWarStats(player, warProxy.getWars(playerTag, 9999)));
                     playerThreads.add(future);
                 }
 

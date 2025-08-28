@@ -22,7 +22,7 @@ export default function ClanPage() {
 
     const fetchClanInfo = (tag: string): void => {
         setLoading(true);
-        axios.get("/api/clan", { params: { tag: tag } })
+        axios.get(`${import.meta.env.VITE_COC_API_URL}/clan`, { params: { tag: tag } })
             .then((response) => {
                 setClan(response.data);
                 setLoading(false);

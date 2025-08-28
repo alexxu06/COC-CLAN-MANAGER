@@ -19,7 +19,7 @@ export default function WarMemberList() {
 
   const fetchWarHistory = (tag: string, limit: number): void => {
     setIsLoading(true);
-    axios.get("/api/player-wars", { params: { tag: tag, limit: limit } })
+    axios.get(`${import.meta.env.VITE_COC_API_URL}/player-wars`, { params: { tag: tag, limit: limit } })
       .then((response) => {
         setWarHistory(response.data);
         setModalShow(true);

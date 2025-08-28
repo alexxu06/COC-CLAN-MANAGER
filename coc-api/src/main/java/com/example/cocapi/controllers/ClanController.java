@@ -17,6 +17,7 @@ public class ClanController {
         this.tagService = tagService;
     }
 
+    @CrossOrigin
     @GetMapping("/clan")
     public ResponseEntity<Clan> getClan(@RequestParam String tag) {
         Clan clan = clanService.getClan(tagService.prepTag(tag));

@@ -2,6 +2,7 @@ package com.example.cocapi.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ public class PlayerController {
         this.tagService = tagService;
     }
 
+    @CrossOrigin
     @GetMapping("/player-wars")
     public ResponseEntity<?> getPlayerWars(@RequestParam String tag,
                                            @RequestParam(required = false, defaultValue = "20") int limit) {

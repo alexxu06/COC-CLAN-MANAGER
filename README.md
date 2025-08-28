@@ -50,6 +50,9 @@ Clan management web app for Clash of Clans. Good for keeping track of members, d
    ```
 
 ## Screenshots
+<img width="1917" height="909" alt="Screenshot 2025-08-27 221938" src="https://github.com/user-attachments/assets/1048aba8-7f1f-4ce0-b7bf-c9a2c6ee782c" />
+<img width="1914" height="904" alt="Screenshot 2025-08-27 221957" src="https://github.com/user-attachments/assets/72c8cb31-93c5-4f77-b22f-85f136e6ae1e" />
+<img width="1910" height="904" alt="Screenshot 2025-08-27 222023" src="https://github.com/user-attachments/assets/99fbcae3-7def-41ff-a904-7d502066eade" />
 
 
 

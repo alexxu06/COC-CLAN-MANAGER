@@ -1,16 +1,15 @@
 package com.example.cocapi.proxies;
 
+import java.net.URI;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+
 import com.example.cocapi.models.Player;
 import com.example.cocapi.models.war.War;
 import com.example.cocapi.models.war.WarResponse;
 import com.example.cocapi.services.TagService;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-
-import java.net.URI;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 public class WarProxy extends Proxy {

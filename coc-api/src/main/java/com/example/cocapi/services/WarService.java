@@ -1,12 +1,5 @@
 package com.example.cocapi.services;
 
-import com.example.cocapi.models.Player;
-import com.example.cocapi.models.war.Attack;
-import com.example.cocapi.models.war.War;
-import com.example.cocapi.proxies.WarProxy;
-import com.example.cocapi.repository.PlayerRepository;
-import org.springframework.stereotype.Service;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +10,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.cocapi.models.Player;
+import com.example.cocapi.models.war.Attack;
+import com.example.cocapi.models.war.War;
+import com.example.cocapi.proxies.WarProxy;
+import com.example.cocapi.repository.PlayerRepository;
 
 @Service
 public class WarService {
@@ -45,15 +46,6 @@ public class WarService {
                 .stream()
                 .map(Player::getTag)
                 .collect(Collectors.toSet());
-
-        // Filter only players in database so it can update the existing player
-        // instead of creating new (which would be using playerInDatabase)
-//        List<Player> filteredExistingPlayers = players
-//                .stream()
-//                .filter(playersInDatabase::contains)
-//                .toList();
-//
-//        updateStoredPlayers(filteredExistingPlayers);
 
         updateStoredPlayers(playersInDatabase);
 

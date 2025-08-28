@@ -1,14 +1,5 @@
 package com.example.cocapi.services;
 
-import com.example.cocapi.models.Clan;
-import com.example.cocapi.models.Player;
-import com.example.cocapi.proxies.ClanProxy;
-import com.example.cocapi.repository.ClanRepository;
-import com.example.cocapi.repository.PlayerRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,6 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.cocapi.models.Clan;
+import com.example.cocapi.models.Player;
+import com.example.cocapi.proxies.ClanProxy;
+import com.example.cocapi.repository.ClanRepository;
+import com.example.cocapi.repository.PlayerRepository;
 
 @Service
 public class ClanService {
@@ -52,9 +53,9 @@ public class ClanService {
         if (hasEnoughTimePassed(24, clan)) {
             updateMembers(members);
             clanRepository.updateTime(clanTag);
-        } else {
-            AddWarStats(members, clanTag);
-        }
+        } 
+        
+        AddWarStats(members, clanTag);
 
         return clan;
     }

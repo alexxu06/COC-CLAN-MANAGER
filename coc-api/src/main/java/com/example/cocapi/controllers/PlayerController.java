@@ -1,16 +1,13 @@
 package com.example.cocapi.controllers;
 
-import com.example.cocapi.models.Player;
-import com.example.cocapi.models.war.War;
-import com.example.cocapi.proxies.PlayerProxy;
-import com.example.cocapi.proxies.WarProxy;
-import com.example.cocapi.services.TagService;
-import com.example.cocapi.services.WarService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.cocapi.proxies.WarProxy;
+import com.example.cocapi.services.TagService;
 
 @RestController
 public class PlayerController {

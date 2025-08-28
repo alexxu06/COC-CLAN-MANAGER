@@ -190,7 +190,7 @@ export default function WarMemberList() {
           fluid
           style={{ maxHeight: '50px', width: 'auto' }} />
       </Col>
-      <Col xs={3} style={{overflow: "hidden",overflowWrap: 'break-word'}}><b>{member.name}</b></Col>
+      <Col xs={3} style={{ overflow: "hidden", overflowWrap: 'break-word' }}><b>{member.name}</b></Col>
       <Col xs={2} className='text-center'>
         {calculateAverage(member.totalStars, member.numAttacks) / 100}
       </Col>
@@ -217,8 +217,14 @@ export default function WarMemberList() {
         <Col xs={3} className='text-center'>Avg Destruction</Col>
         <Col xs={2} className='text-center'>Hit Rate</Col>
       </Row>
+      <div className="container-fluid d-none d-lg-flex flex-column" style={{ height: "75vh", overflowY: "auto" }}>
+        {displayWarStats}
+      </div>
 
-      {displayWarStats}
+      <div className="container-fluid d-lg-none">
+        {displayWarStats}
+      </div>
+
 
       <Modal
         size="lg"

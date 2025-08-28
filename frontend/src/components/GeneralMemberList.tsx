@@ -17,14 +17,27 @@ export default function GeneralMemberList() {
                     fluid
                     style={{ maxHeight: '50px', width: 'auto' }} />
             </Col>
-            <Col xs={3} style={{overflow: "hidden",overflowWrap: 'break-word'}}><b>{member.name}</b></Col>
+            <Col xs={3} style={{ overflow: "hidden", overflowWrap: 'break-word' }}><b>{member.name}</b></Col>
             <Col xs={7}>
                 <Row>
                     <Col xs={3} className='text-center'>
                         {member.clanRank}
                     </Col>
-                    <Col xs={3} className='text-center'>
-                        {member.role == "admin" ? "elder" : member.role}
+                    <Col xs={3} className='text-center' style={{ whiteSpace: 'nowrap' }}>
+                        {member.role === "admin" ? "Elder" :
+                            member.role === "coLeader" ? <>
+                                <span className="d-none d-sm-inline">Co-leader</span>
+                                <span className="d-inline d-sm-none">Co</span>
+                            </> :
+                                member.role === "leader" ? <>
+                                    <span className="d-none d-sm-inline" style={{color: "#003366", WebkitTextStroke: "1px yellow"}}><b><i>Leader</i></b></span>
+                                    <span className="d-inline d-sm-none" style={{color: "#003366", WebkitTextStroke: "1px yellow"}}><b><i>Lead</i></b></span>
+                                </> :
+                                    member.role === "member" ? <>
+                                        <span className="d-none d-sm-inline">Member</span>
+                                        <span className="d-inline d-sm-none">Mem</span>
+                                    </> :
+                                        member.role}
                     </Col>
                     <Col xs={3} className='text-center'>
                         {member.donations}
@@ -59,7 +72,14 @@ export default function GeneralMemberList() {
                     </Row>
                 </Col>
             </Row>
-            {displayGeneral}
+            <div className="container-fluid d-none d-lg-flex flex-column" style={{ height: "75vh", overflowY: "auto" }}>
+                {displayGeneral}
+            </div>
+
+            <div className="container-fluid d-lg-none">
+                {displayGeneral}
+            </div>
+
         </Container>
     );
 }

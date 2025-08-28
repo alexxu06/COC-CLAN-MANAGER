@@ -5,7 +5,7 @@ import NavBar from './NavBar.tsx';
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
 import type { Clan } from "../types"
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -13,6 +13,7 @@ export default function ClanPage() {
     const { clanTag } = useParams<{ clanTag: string }>();
     const [clan, setClan] = useState<Clan | null>(null);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (clanTag) {
@@ -34,6 +35,7 @@ export default function ClanPage() {
                     alert("System Error");
                 }
                 console.log(error);
+                navigate(-1);
                 setLoading(false);
             });
     }

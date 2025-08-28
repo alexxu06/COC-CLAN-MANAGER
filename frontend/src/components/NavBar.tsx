@@ -9,12 +9,14 @@ export default function NavBar() {
 
   return (
     <Container className="mt-sm-0 mt-4">
-      <Nav variant="tabs" activeKey={ location.pathname }>
+      <Nav variant="tabs" activeKey={location.pathname} className={!clanTag ? "disabled" : ""}>
         <Nav.Item>
-          <Nav.Link as={Link} to="general" eventKey={`/${clanTag}/general`}>General</Nav.Link>
+          <Nav.Link as={Link} to="general" eventKey={clanTag ? `/${clanTag}/general` : "disabled"} disabled={!clanTag}>
+            General
+          </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link as={Link} to="war" eventKey={`/${clanTag}/war`}>War</Nav.Link>
+          <Nav.Link as={Link} to="war" eventKey={clanTag ? `/${clanTag}/war` : "disabled" } disabled={!clanTag}>War</Nav.Link>
         </Nav.Item>
         <Nav.Item>
           <Nav.Link eventKey="disabled" disabled>

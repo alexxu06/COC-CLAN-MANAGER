@@ -37,9 +37,9 @@ Clan management web app for Clash of Clans. Good for keeping track of members, d
    - Install MySQL
    - Update ```application.properties``` with your database credentials:
    ```properties
-   spring.datasource.url=jdbc:mysql://localhost/player_war_stats
-   spring.datasource.username=admin
-   spring.datasource.password=skibidi rizz
+   spring.datasource.url=jdbc:mysql://localhost/{database name here}
+   spring.datasource.username={user name here}
+   spring.datasource.password={password here}
    ```
 
 4. Configure and run frontend
